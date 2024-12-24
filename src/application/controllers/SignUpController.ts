@@ -1,11 +1,8 @@
 import { z } from "zod";
-import type {
-	IController,
-	IRequest,
-	IResponse,
-} from "../interface/IController";
+import type { IController, IResponse } from "../interface/IController";
 import type { SignUpUseCase } from "../useCases/SignUpUseCase";
 import { AccountAlreadyExists } from "../errors/AccountAlreadyExists";
+import type { IRequest } from "../interface/IRequest";
 
 const schema = z.object({
 	name: z.string().min(2),
@@ -17,7 +14,7 @@ export class SignUpController implements IController {
 	constructor(private readonly signUpUseCase: SignUpUseCase) {}
 
 	async handle(request: IRequest): Promise<IResponse> {
-    try {
+		try {
 			const { name, email, password } = schema.parse(request.body);
 
 			await this.signUpUseCase.execute({
@@ -38,14 +35,14 @@ export class SignUpController implements IController {
 				};
 			}
 
-      if (error instanceof AccountAlreadyExists) {
-        return {
-          statusCode: 409,
-          body: {
-            message: 'Account already exists',
-          },
-        }
-      }
+			if (error instanceof AccountAlreadyExists) {
+				return {
+					statusCode: 409,
+					body: {
+						message: "Account already exists",
+					},
+				};
+			}
 
 			throw error;
 		}

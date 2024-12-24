@@ -1,6 +1,4 @@
-export interface IRequest {
-	headers: Record<string, string>;
-}
+import type { IRequest } from "./IRequest";
 
 export interface IResponse {
 	statusCode: number;
@@ -8,7 +6,7 @@ export interface IResponse {
 }
 
 export type IData = {
-  data: Record<string, any>;
+	data: Record<string, any>;
 };
 
 export interface IMiddleware {

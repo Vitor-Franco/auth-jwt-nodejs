@@ -5,6 +5,7 @@ import { routeAdapter } from "./adapters/routeAdapter";
 import { middlewareAdapter } from "./adapters/middlewareAdapter";
 import { makeAuthenticationMiddleware } from "../factories/makeAuthenticationMiddleware";
 import { makeListUsersController } from "../factories/makeListUsersController";
+import { makeAuthorizationMiddleware } from "../factories/makeAuthorizationMiddleware";
 
 const app = express();
 
@@ -17,6 +18,15 @@ app.get(
 	"/users",
 	middlewareAdapter(makeAuthenticationMiddleware()),
 	routeAdapter(makeListUsersController()),
+);
+
+app.get(
+	"/leads",
+	middlewareAdapter(makeAuthenticationMiddleware()),
+	middlewareAdapter(makeAuthorizationMiddleware(['USER'])),
+	(req, res) => {
+    res.json({ message: "Leads" });
+  },
 );
 
 app.listen(3001, () => {

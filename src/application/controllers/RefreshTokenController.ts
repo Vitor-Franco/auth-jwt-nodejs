@@ -1,31 +1,31 @@
 import { z } from "zod";
 import type { IController, IResponse } from "../interface/IController";
-import type { SignInUseCase } from "../useCases/SignInUseCase";
 import { InvalidCredentials } from "../errors/InvalidCredentials";
 import type { IRequest } from "../interface/IRequest";
+import type { RefreshTokenUseCase } from "../useCases/RefreshTokenUseCase";
+import { InvalidToken } from "../errors/InvalidToken";
 
 const schema = z.object({
-	email: z.string().email(),
-	password: z.string().min(8),
+	token: z.string(),
 });
 
-export class SignInController implements IController {
-	constructor(private readonly signInUseCase: SignInUseCase) {}
+export class RefreshTokenController implements IController {
+	constructor(private readonly refreshTokenUseCase: RefreshTokenUseCase) {}
 
 	async handle(request: IRequest): Promise<IResponse> {
 		try {
-			const { email, password } = schema.parse(request.body);
+			const { token } = schema.parse(request.body);
 
-			const { accessToken, refreshToken } = await this.signInUseCase.execute({
-				email,
-				password,
-			});
+			const { accessToken, refreshToken } =
+				await this.refreshTokenUseCase.execute({
+					refreshToken: token,
+				});
 
 			return {
 				statusCode: 200,
 				body: {
 					accessToken,
-          refreshToken,
+					refreshToken,
 				},
 			};
 		} catch (error) {
@@ -33,6 +33,15 @@ export class SignInController implements IController {
 				return {
 					statusCode: 400,
 					body: error.issues,
+				};
+			}
+
+			if (error instanceof InvalidToken) {
+				return {
+					statusCode: 401,
+					body: {
+						error: "Invalid token",
+					},
 				};
 			}
 

@@ -11,6 +11,7 @@ interface IInput {
 
 interface IOutput {
 	accessToken: string;
+  refreshToken: string;
 }
 
 export class SignInUseCase {
@@ -34,11 +35,25 @@ export class SignInUseCase {
 		const accessToken = sign(
 			{ sub: account.id, role: account.roleId },
 			env.jwtSecret,
-			{ expiresIn: "1d" },
+			{ expiresIn: "15s" },
 		);
+
+    const refreshToken = sign(
+      { sub: account.id },
+      env.refreshTokenSecret,
+      { expiresIn: "10d" },
+    )
+
+    await prismaClient.refreshToken.create({
+      data: {
+        token: refreshToken,
+        accountId: account.id
+      }
+    })
 
 		return {
 			accessToken,
+      refreshToken
 		};
 	}
 }

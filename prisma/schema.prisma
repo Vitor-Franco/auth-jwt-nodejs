@@ -14,9 +14,21 @@ model Account {
   password String
   roleId   String @map("role_id") @db.Uuid
 
-  role Role @relation(fields: [roleId], references: [id])
+  role          Role           @relation(fields: [roleId], references: [id])
+  refreshTokens RefreshToken[]
 
   @@map("accounts")
+}
+
+model RefreshToken {
+  id        String @id @default(uuid()) @db.Uuid
+  accountId String @db.Uuid
+  token     String
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@map("refresh_tokens")
 }
 
 model Role {

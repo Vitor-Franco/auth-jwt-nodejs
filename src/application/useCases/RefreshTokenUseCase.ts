@@ -33,6 +33,7 @@ export class RefreshTokenUseCase {
     });
 
     if (!refreshTokenExists) {
+      // This account can be invaded - someone are trying to use an old token.
       await prismaClient.refreshToken.deleteMany({
         where: {
           accountId,

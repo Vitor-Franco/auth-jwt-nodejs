@@ -3,6 +3,7 @@ import { prismaClient } from "../libs/prismaClient";
 import { InvalidCredentials } from "../errors/InvalidCredentials";
 import { sign } from "jsonwebtoken";
 import { env } from "../config/env";
+import { JWT } from "../constants/jwt";
 
 interface IInput {
 	email: string;
@@ -35,13 +36,13 @@ export class SignInUseCase {
 		const accessToken = sign(
 			{ sub: account.id, role: account.roleId },
 			env.jwtSecret,
-			{ expiresIn: "15s" },
+			{ expiresIn: JWT.access_token.expires_in },
 		);
 
     const refreshToken = sign(
       { sub: account.id },
       env.refreshTokenSecret,
-      { expiresIn: "10d" },
+      { expiresIn: JWT.refresh_token.expires_in },
     )
 
     await prismaClient.refreshToken.create({
